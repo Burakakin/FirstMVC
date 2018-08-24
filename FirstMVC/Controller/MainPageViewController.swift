@@ -11,47 +11,28 @@ import UIKit
 class MainPageViewController: UIViewController {
 
     @IBOutlet weak var myTableView: UITableView!
+    var mainPageNetworking = MainPageNetworking()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        getJson(urlString: "https://rss.itunes.apple.com/api/v1/tr/movies/top-movies/all/25/explicit.json")
+        
+        mainPageNetworking.getData(urlString: "https://rss.itunes.apple.com/api/v1/tr/movies/top-movies/all/25/explicit.json") { (feed) in
+            print(feed?[1].name ?? "slm")
+        }
     }
 
    
     
-    
-    var feedResult = [MainPageNetworking.Results]()
-    
-    
-    func getJson(urlString: String){
-        let url = URL(string: urlString)
-        URLSession.shared.dataTask(with: url!) { (data, response, err) in
-            guard let data = data else { return }
-            self.getData(jsonData: data)
-            }.resume()
-        
-        
-    }
-    
-    func getData(jsonData: Data){
-        
-        do{
-            let appleData = try JSONDecoder().decode(MainPageNetworking.appleApi.self, from: jsonData)
-            let appData = appleData.feed.results
-            //print(appData)
-            DispatchQueue.main.async {
-                self.feedResult.append(contentsOf: appData)
-                self.myTableView.reloadData()
-                print(appData[0].name)
-            }
-            
-        }catch let err{
-            print("Error", err )
+
+    var feedResult = [MainPageNetworking.Results](){
+        didSet{
+
         }
-        
     }
+
+    
 
 }
 
